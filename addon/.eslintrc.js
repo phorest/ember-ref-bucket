@@ -27,7 +27,7 @@ module.exports = {
         '.eslintrc.js',
         '.prettierrc.js',
         '.template-lintrc.js',
-        'index.js',
+        'addon-main.js',
         'config/**/*.js',
       ],
       excludedFiles: ['addon/**'],

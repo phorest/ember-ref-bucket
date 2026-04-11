@@ -13,7 +13,19 @@
   "repository": "lifeart/ember-ref-bucket",
   "license": "MIT",
   "author": "Aleksandr Kanunnikov <lifeart92@gmail.com>",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*",
+    "./addon-main.js": "./addon-main.js"
+  },
+  "files": [
+    "addon-main.js",
+    "dist"
+  ],
   "scripts": {
+    "build": "rollup --config",
+    "start": "rollup --config --watch",
+    "prepublishOnly": "rollup --config",
     "lint": "npm-run-all --aggregate-output --continue-on-error --parallel \"lint:!(fix)\"",
     "lint:fix": "npm-run-all --aggregate-output --continue-on-error --parallel lint:*:fix",
     "lint:hbs": "ember-template-lint .",
@@ -22,12 +34,15 @@
     "lint:js:fix": "eslint . --fix"
   },
   "dependencies": {
-    "ember-auto-import": "^2.5.0",
-    "ember-cli-babel": "^7.26.11",
-    "ember-cli-htmlbars": "^6.0.1",
+    "@embroider/addon-shim": "^1.10.2",
     "ember-modifier": "^3.2.7 || ^4.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/plugin-proposal-decorators": "^7.29.0",
+    "@babel/plugin-transform-class-properties": "^7.28.6",
+    "@embroider/addon-dev": "^8.3.0",
+    "@rollup/plugin-babel": "^7.0.0",
     "babel-eslint": "^10.1.0",
     "ember-template-lint": "^3.4.2",
     "eslint": "^7.27.0",
@@ -36,7 +51,8 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.4.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.3.0"
+    "prettier": "^2.3.0",
+    "rollup": "^4.60.1"
   },
   "engines": {
     "node": "14.* || 16.* || >= 18"
@@ -44,5 +60,20 @@
   "ember": {
     "edition": "octane"
   },
-  "ember-addon": {}
+  "ember-addon": {
+    "main": "addon-main.js",
+    "type": "addon",
+    "version": 2,
+    "app-js": {
+      "./helpers/global-ref-to.js": "./dist/_app_/helpers/global-ref-to.js",
+      "./helpers/ref-to.js": "./dist/_app_/helpers/ref-to.js",
+      "./helpers/tracked-global-ref-to.js": "./dist/_app_/helpers/tracked-global-ref-to.js",
+      "./helpers/tracked-ref-to.js": "./dist/_app_/helpers/tracked-ref-to.js",
+      "./instance-initializers/global-ref-cleanup.js": "./dist/_app_/instance-initializers/global-ref-cleanup.js",
+      "./modifiers/create-global-ref.js": "./dist/_app_/modifiers/create-global-ref.js",
+      "./modifiers/create-ref.js": "./dist/_app_/modifiers/create-ref.js",
+      "./modifiers/create-tracked-global-ref.js": "./dist/_app_/modifiers/create-tracked-global-ref.js",
+      "./modifiers/create-tracked-ref.js": "./dist/_app_/modifiers/create-tracked-ref.js"
+    }
+  }
 }
