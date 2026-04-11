@@ -1,0 +1,45 @@
+'use strict';
+
+module.exports = {
+  root: true,
+  parser: 'babel-eslint',
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    ecmaFeatures: {
+      legacyDecorators: true,
+    },
+  },
+  plugins: ['ember'],
+  extends: [
+    'eslint:recommended',
+    'plugin:ember/recommended',
+    'plugin:prettier/recommended',
+  ],
+  env: {
+    browser: true,
+  },
+  rules: {},
+  overrides: [
+    // node files (the ember-cli addon main and addon config)
+    {
+      files: [
+        '.eslintrc.js',
+        '.prettierrc.js',
+        '.template-lintrc.js',
+        'index.js',
+        'config/**/*.js',
+      ],
+      excludedFiles: ['addon/**'],
+      parserOptions: {
+        sourceType: 'script',
+      },
+      env: {
+        browser: false,
+        node: true,
+      },
+      plugins: ['node'],
+      extends: ['plugin:node/recommended'],
+    },
+  ],
+};

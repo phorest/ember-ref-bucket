@@ -28,17 +28,9 @@ module.exports = {
         '.prettierrc.js',
         '.template-lintrc.js',
         'ember-cli-build.js',
-        'index.js',
         'testem.js',
         'blueprints/*/index.js',
         'config/**/*.js',
-        'tests/dummy/config/**/*.js',
-      ],
-      excludedFiles: [
-        'addon/**',
-        'addon-test-support/**',
-        'app/**',
-        'tests/dummy/app/**',
       ],
       parserOptions: {
         sourceType: 'script',
@@ -49,37 +41,15 @@ module.exports = {
       },
       plugins: ['node'],
       extends: ['plugin:node/recommended'],
+      rules: {
+        // test-app is private so devDependencies are always available
+        'node/no-unpublished-require': 'off',
+      },
     },
     {
       // Test files:
       files: ['tests/**/*-test.{js,ts}'],
       extends: ['plugin:qunit/recommended'],
-    },
-    // codemods source files
-    {
-      files: ['codemods/src/**/*.js'],
-      parserOptions: {
-        sourceType: 'script',
-      },
-      env: {
-        browser: false,
-        node: true,
-      },
-      rules: {
-        'no-process-exit': 'off',
-      },
-    },
-    // codemods test files
-    {
-      files: ['codemods/tests/**/*.js'],
-      parserOptions: {
-        sourceType: 'script',
-      },
-      env: {
-        browser: false,
-        node: true,
-        jest: true,
-      },
     },
   ],
 };

@@ -1,0 +1,48 @@
+{
+  "name": "ember-ref-bucket",
+  "version": "6.0.0",
+  "description": "Ember DOM reference modifiers, helpers and decorators",
+  "keywords": [
+    "ember-addon",
+    "ember-modifier",
+    "ember-element-modifier",
+    "ref-modifier",
+    "ref",
+    "create-ref"
+  ],
+  "repository": "lifeart/ember-ref-bucket",
+  "license": "MIT",
+  "author": "Aleksandr Kanunnikov <lifeart92@gmail.com>",
+  "scripts": {
+    "lint": "npm-run-all --aggregate-output --continue-on-error --parallel \"lint:!(fix)\"",
+    "lint:fix": "npm-run-all --aggregate-output --continue-on-error --parallel lint:*:fix",
+    "lint:hbs": "ember-template-lint .",
+    "lint:hbs:fix": "ember-template-lint . --fix",
+    "lint:js": "eslint . --cache",
+    "lint:js:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "ember-auto-import": "^2.5.0",
+    "ember-cli-babel": "^7.26.11",
+    "ember-cli-htmlbars": "^6.0.1",
+    "ember-modifier": "^3.2.7 || ^4.0.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "ember-template-lint": "^3.4.2",
+    "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-ember": "^10.4.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.0"
+  },
+  "engines": {
+    "node": "14.* || 16.* || >= 18"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "ember-addon": {}
+}
