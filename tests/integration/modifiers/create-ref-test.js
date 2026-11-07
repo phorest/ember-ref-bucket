@@ -1,11 +1,22 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, find, waitUntil } from '@ember/test-helpers';
+import {
+  render,
+  find,
+  waitUntil,
+  setupOnerror,
+  resetOnerror,
+  settled,
+} from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { ref, globalRef, nodeFor, resolveGlobalRef } from 'ember-ref-bucket';
 
 module('Integration | Modifier | create-ref', function (hooks) {
   setupRenderingTest(hooks);
+
+  hooks.afterEach(function () {
+    resetOnerror();
+  });
 
   hooks.after(function (assert) {
     assert.equal(
@@ -29,8 +40,58 @@ module('Integration | Modifier | create-ref', function (hooks) {
       @globalRef('boo') node;
     }
     this.set('ctx', new Item());
-    await render(hbs`<div {{create-ref "boo"}}>octane</div>`);
+    await render(hbs`<div {{create-global-ref "boo"}}>octane</div>`);
     assert.equal(this.ctx.node.textContent, 'octane');
+  });
+
+  test('it asserts when {{create-ref}} has no context', async function (assert) {
+    assert.expect(1);
+    setupOnerror((error) => {
+      assert.ok(
+        /\{\{create-ref "foo"\}\} requires a context/.test(error.message),
+        error.message
+      );
+    });
+    await render(hbs`<div {{create-ref "foo"}}>octane</div>`);
+  });
+
+  test('it asserts when {{create-tracked-ref}} has a null context', async function (assert) {
+    assert.expect(1);
+    setupOnerror((error) => {
+      assert.ok(
+        /\{\{create-tracked-ref "foo"\}\} requires a context/.test(
+          error.message
+        ),
+        error.message
+      );
+    });
+    this.set('ctx', null);
+    await render(hbs`<div {{create-tracked-ref "foo" this.ctx}}>octane</div>`);
+  });
+
+  test('it clears the previous key when the name changes', async function (assert) {
+    this.set('name', 'foo');
+    await render(hbs`<div {{create-ref this.name this}}>octane</div>`);
+    assert.equal(nodeFor(this, 'foo').textContent, 'octane');
+    this.set('name', 'bar');
+    await settled();
+    assert.equal(nodeFor(this, 'bar').textContent, 'octane');
+    assert.notOk(nodeFor(this, 'foo'), 'ref to "foo" is cleared');
+  });
+
+  test('global variants ignore a second positional argument', async function (assert) {
+    await render(hbs`
+      <div {{create-global-ref "foo" this}}>octane</div>
+      <div {{create-tracked-global-ref "bar" this}}>ember</div>
+      <span data-test-foo>{{get (global-ref-to "foo" this) 'textContent'}}</span>
+      <span data-test-bar>{{get (tracked-global-ref-to "bar" this) 'textContent'}}</span>
+    `);
+    assert.equal(nodeFor(this.owner, 'foo').textContent, 'octane');
+    assert.equal(nodeFor(this.owner, 'bar').textContent, 'ember');
+    assert.notOk(nodeFor(this, 'foo'), 'no local ref to "foo"');
+    assert.notOk(nodeFor(this, 'bar'), 'no local ref to "bar"');
+    assert.equal(find('[data-test-foo]').textContent, 'octane');
+    assert.equal(find('[data-test-bar]').textContent, 'ember');
   });
 
   test('it works for {{create-ref}}', async function (assert) {

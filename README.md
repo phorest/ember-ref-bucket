@@ -229,7 +229,7 @@ Options:
 
 ## Template-only components
 
-`create-ref` and `ref-to` require a component context (`this`). In template-only components there is no context, so use the global variants instead: `create-global-ref` and `global-ref-to`.
+`create-ref` and `ref-to` (and their tracked variants) require a component context (`this`) as the second positional argument, and assert if it is missing or `null`. In template-only components there is no context, so use the global variants instead: `create-global-ref` and `global-ref-to`.
 
 -----------
 
