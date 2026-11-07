@@ -10,6 +10,7 @@ var _class;
 let RefModifier = (_class = class RefModifier extends Modifier {
   constructor() {
     super(...arguments);
+    _defineProperty(this, "debugName", 'create-ref');
     _defineProperty(this, "_key", void 0);
     _defineProperty(this, "_ctx", void 0);
     _defineProperty(this, "_element", void 0);
@@ -27,7 +28,7 @@ let RefModifier = (_class = class RefModifier extends Modifier {
       this.cleanMutationObservers();
       this.cleanResizeObservers();
       getNodeDestructors(element).forEach(cb => cb());
-      if (element === bucketFor(this._ctx).get(this._key)) {
+      if (this._ctx && element === bucketFor(this._ctx).get(this._key)) {
         bucketFor(this._ctx).add(this._key, null);
       }
       delete this._element;
@@ -100,16 +101,19 @@ let RefModifier = (_class = class RefModifier extends Modifier {
   }
   modify(element, positional, named) {
     const name = this.name(positional);
+    assert(`ember-ref-bucket: You must provide a string as the first positional argument for {{${this.debugName}}}`, typeof name === 'string' && name.length > 0);
     const ctx = this.ctx(positional);
+    const prevKey = this._key;
+    const prevCtx = this._ctx;
+    const prevElement = this._element;
     this._key = name;
     this._ctx = ctx;
     this._element = element;
-    assert(`ember-ref-bucket: You must provide a string as the first positional argument for {{create-ref}}`, typeof name === 'string' && name.length > 0);
     this.validateTrackedOptions(named);
     this.cleanMutationObservers();
     this.cleanResizeObservers();
-    if (name !== this._key || this._ctx !== ctx) {
-      bucketFor(this._ctx).add(this._key, null);
+    if (prevCtx && (name !== prevKey || ctx !== prevCtx) && bucketFor(prevCtx).get(prevKey) === prevElement) {
+      bucketFor(prevCtx).add(prevKey, null);
     }
     watchFor(name, ctx, () => {
       const keys = getReferencedKeys(ctx, name);
@@ -126,8 +130,9 @@ let RefModifier = (_class = class RefModifier extends Modifier {
       }
     }
   }
-  ctx([, context] = []) {
-    return context ?? getOwner(this);
+  ctx([name, context] = []) {
+    assert(`ember-ref-bucket: {{${this.debugName} "${name}"}} requires a context as the second positional argument, e.g. {{${this.debugName} "${name}" this}}. In template-only components, where \`this\` is null, use a global variant instead.`, context !== undefined && context !== null);
+    return context;
   }
   isTracked(named = {}) {
     return named.tracked || false;

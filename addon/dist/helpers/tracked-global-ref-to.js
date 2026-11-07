@@ -1,11 +1,20 @@
+import { _ as _defineProperty } from '../ref-BUxaMTFf.js';
 import RefToHelper from './ref-to.js';
+import { getOwner } from '@ember/application';
 
 class TrackedGlobalRefToHelper extends RefToHelper {
-  compute([name], named) {
-    return super.compute([name], {
+  constructor(...args) {
+    super(...args);
+    _defineProperty(this, "debugName", 'tracked-global-ref-to');
+  }
+  compute(positional, named) {
+    return super.compute(positional, {
       ...named,
       tracked: true
     });
+  }
+  ctx() {
+    return getOwner(this);
   }
 }
 
