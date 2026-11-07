@@ -16,6 +16,20 @@ second positional argument to local ref modifiers and helpers:
 {{ref-to "foo" this}}
 ```
 
+Leaving the context out, or passing `null` (as `this` is in template-only
+components), now fails with an assertion instead of silently falling back to
+the global (owner) bucket.
+
+Global variants (`create-global-ref`, `create-tracked-global-ref`,
+`global-ref-to`, `tracked-global-ref-to`) are unchanged and take **no** second
+positional argument. Any context passed to them is ignored, so don't add
+`this` to global invocations the codemod leaves alone:
+
+```hbs
+{{create-global-ref "foo"}}
+{{global-ref-to "foo"}}
+```
+
 A codemod is provided to automate this change:
 
 ```sh

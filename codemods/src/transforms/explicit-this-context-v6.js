@@ -7,13 +7,23 @@ const LOCAL_NAMES = new Set([
   'tracked-ref-to',
 ]);
 
-const ALL_KNOWN = new Set([
-  ...LOCAL_NAMES,
+const GLOBAL_NAMES = new Set([
   'create-global-ref',
   'create-tracked-global-ref',
   'global-ref-to',
   'tracked-global-ref-to',
 ]);
+
+const ALL_KNOWN = new Set([...LOCAL_NAMES, ...GLOBAL_NAMES]);
+
+// v5 fell back to the owner when bucket was undefined, which is what the
+// global variants do in v6
+const GLOBAL_EQUIVALENT = {
+  'create-ref': 'create-global-ref',
+  'create-tracked-ref': 'create-tracked-global-ref',
+  'ref-to': 'global-ref-to',
+  'tracked-ref-to': 'tracked-global-ref-to',
+};
 
 module.exports = function hbsTransform(env) {
   const { builders: b } = env.syntax;
@@ -25,10 +35,20 @@ module.exports = function hbsTransform(env) {
     const bucketIndex = node.hash.pairs.findIndex((p) => p.key === 'bucket');
 
     if (bucketIndex !== -1) {
-      // bucket=someVar -> move to second positional arg
       const { value } = node.hash.pairs[bucketIndex];
-      node.params.push(value);
       node.hash.pairs.splice(bucketIndex, 1);
+
+      if (GLOBAL_NAMES.has(name)) {
+        // v5 ignored bucket on global variants -> just drop it
+        return;
+      }
+      if (value.type === 'UndefinedLiteral') {
+        // bucket=undefined meant the owner -> switch to the global variant
+        node.path = b.path(GLOBAL_EQUIVALENT[name]);
+        return;
+      }
+      // bucket=someVar -> move to second positional arg
+      node.params.push(value);
     } else if (LOCAL_NAMES.has(name) && node.params.length < 2) {
       // local variant with no context yet -> add this
       node.params.push(b.path('this'));

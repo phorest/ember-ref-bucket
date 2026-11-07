@@ -30,10 +30,12 @@ transformations. The context must now be passed as a second positional argument.
 | `{{tracked-ref-to "foo"}}` | `{{tracked-ref-to "foo" this}}` |
 | `{{create-ref "foo" bucket=this}}` | `{{create-ref "foo" this}}` |
 | `{{create-ref "foo" bucket=someVar}}` | `{{create-ref "foo" someVar}}` |
+| `{{create-ref "foo" bucket=undefined}}` | `{{create-global-ref "foo"}}` |
+| `{{create-global-ref "foo" bucket=this}}` | `{{create-global-ref "foo"}}` |
 
 Global variants (`create-global-ref`, `create-tracked-global-ref`,
-`global-ref-to`, `tracked-global-ref-to`) require no change and are left
-untouched.
+`global-ref-to`, `tracked-global-ref-to`) take no context. v5 ignored `bucket=`
+on them, so the codemod drops it and otherwise leaves them untouched.
 
 ---
 
