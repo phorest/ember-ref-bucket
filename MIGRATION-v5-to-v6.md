@@ -30,7 +30,29 @@ positional argument. Any context passed to them is ignored, so don't add
 {{global-ref-to "foo"}}
 ```
 
-A codemod is provided to automate this change:
+### Template tag (`.gjs` / `.gts`)
+
+In template tag files the modifiers and helpers are imported, and the context
+goes in the same place:
+
+```gjs
+import createRef from 'ember-ref-bucket/modifiers/create-ref';
+
+// v5
+<div {{createRef "foo" bucket=this}}></div>
+
+// v6
+<div {{createRef "foo" this}}></div>
+```
+
+v5's build-time transform only recognised the kebab-case names, so it never
+added `bucket=this` to `createRef` / `refTo` in template tags. GJS code on v5
+therefore passes `bucket=this` by hand. In v6 that named argument is no longer
+read, and the call fails the missing-context assertion until it's moved to the
+second positional argument.
+
+A codemod is provided to automate this change, for `.hbs`, `.gjs` and `.gts`
+files:
 
 ```sh
 npx ember-ref-bucket-codemod ./app ./tests

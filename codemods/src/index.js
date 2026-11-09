@@ -2,7 +2,6 @@
 'use strict';
 
 const fs = require('fs');
-const { transform } = require('ember-template-recast');
 const globby = require('globby');
 
 const transforms = {
@@ -44,27 +43,34 @@ if (paths.length === 0) {
   process.exit(1);
 }
 
+const EXTENSIONS = ['hbs', 'gjs', 'gts'];
+
 const globs = paths.map((arg) => {
-  if (arg.endsWith('.hbs')) return arg;
-  return arg.replace(/\/$/, '') + '/**/*.hbs';
+  if (EXTENSIONS.some((ext) => arg.endsWith(`.${ext}`))) return arg;
+  return arg.replace(/\/$/, '') + `/**/*.{${EXTENSIONS.join(',')}}`;
 });
 
 const files = globby.sync(globs, { gitignore: true });
 
 if (files.length === 0) {
-  console.log('No .hbs files found.');
+  console.log('No .hbs, .gjs or .gts files found.');
   process.exit(0);
 }
 
-for (const [name, transformFn] of Object.entries(selected)) {
+for (const [name, codemod] of Object.entries(selected)) {
   console.log(`Running: ${name}`);
   let changed = 0;
   let unchanged = 0;
+  let warned = 0;
 
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8');
-    const result = transform(source, transformFn);
+    const result = codemod.transformFile(source, file);
 
+    for (const { line, message } of result.warnings) {
+      console.warn(`  warning: ${file}:${line} ${message}`);
+      warned++;
+    }
     if (result.code !== source) {
       fs.writeFileSync(file, result.code, 'utf8');
       console.log(`  updated: ${file}`);
@@ -74,5 +80,7 @@ for (const [name, transformFn] of Object.entries(selected)) {
     }
   }
 
-  console.log(`  ${changed} file(s) updated, ${unchanged} unchanged.\n`);
+  console.log(
+    `  ${changed} file(s) updated, ${unchanged} unchanged, ${warned} warning(s).\n`
+  );
 }
